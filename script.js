@@ -311,24 +311,49 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     loadTestimonials();
 
-    // 4. Handle Review Submission
+    // 4. Handle Review Submission via Web3Forms
     const reviewForm = document.getElementById('reviewForm');
     if (reviewForm) {
-        reviewForm.addEventListener('submit', (e) => {
+        reviewForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newReview = {
-                id: Date.now(),
-                name: document.getElementById('revName').value,
-                text: document.getElementById('revText').value,
-                status: 'pending'
-            };
-            
-            const existing = JSON.parse(localStorage.getItem('pb_reviews')) || [];
-            existing.push(newReview);
-            localStorage.setItem('pb_reviews', JSON.stringify(existing));
-            
-            alert('Review submitted! It will appear once approved by admin.');
-            reviewForm.reset();
+            const submitBtn = reviewForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(reviewForm);
+                const response = await fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    submitBtn.textContent = 'Sent Successfully!';
+                    submitBtn.classList.remove('bg-white');
+                    submitBtn.classList.add('bg-emerald-500');
+                    reviewForm.reset();
+                    setTimeout(() => {
+                        submitBtn.textContent = originalText;
+                        submitBtn.classList.remove('bg-emerald-500');
+                        submitBtn.classList.add('bg-white');
+                        submitBtn.disabled = false;
+                    }, 3000);
+                } else {
+                    submitBtn.textContent = 'Something went wrong';
+                    setTimeout(() => {
+                        submitBtn.textContent = originalText;
+                        submitBtn.disabled = false;
+                    }, 3000);
+                }
+            } catch (err) {
+                submitBtn.textContent = 'Error - Try Again';
+                setTimeout(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }, 3000);
+            }
         });
     }
 });
