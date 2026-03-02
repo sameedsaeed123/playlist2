@@ -126,6 +126,11 @@
     }
 }
 
+/* Mobile menu transition */
+#mobile-menu {
+    transition: max-height 0.4s ease-in-out, border-color 0.3s ease;
+}
+
 /* Lightbox animation */
 #lightbox img {
     animation: lightboxIn 0.3s ease-out;

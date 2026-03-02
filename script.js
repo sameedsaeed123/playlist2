@@ -1,3 +1,45 @@
+// Mobile menu toggle
+let menuOpen = false;
+function toggleMenu() {
+    const menu = document.getElementById('mobile-menu');
+    const bar1 = document.getElementById('bar1');
+    const bar2 = document.getElementById('bar2');
+    const bar3 = document.getElementById('bar3');
+    menuOpen = !menuOpen;
+
+    if (menuOpen) {
+        menu.style.maxHeight = menu.scrollHeight + 'px';
+        menu.style.borderColor = 'rgba(255,255,255,0.05)';
+        // Animate to X
+        bar1.style.transform = 'translateY(8px) rotate(45deg)';
+        bar2.style.opacity = '0';
+        bar3.style.transform = 'translateY(-8px) rotate(-45deg)';
+    } else {
+        menu.style.maxHeight = '0px';
+        menu.style.borderColor = 'rgba(255,255,255,0)';
+        // Reset bars
+        bar1.style.transform = 'none';
+        bar2.style.opacity = '1';
+        bar3.style.transform = 'none';
+    }
+}
+
+// Navbar scroll background
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+        navbar.style.background = 'rgba(5,5,5,0.95)';
+        navbar.style.backdropFilter = 'blur(20px)';
+        navbar.style.WebkitBackdropFilter = 'blur(20px)';
+        navbar.style.borderColor = 'rgba(255,255,255,0.05)';
+    } else {
+        navbar.style.background = 'transparent';
+        navbar.style.backdropFilter = 'none';
+        navbar.style.WebkitBackdropFilter = 'none';
+        navbar.style.borderColor = 'transparent';
+    }
+});
+
 // Lightbox functions (global scope)
 function openLightbox(el) {
     const img = el.querySelector('img');

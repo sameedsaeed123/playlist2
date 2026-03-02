@@ -13,22 +13,42 @@
 
     <div class="fixed inset-0 z-[9999] pointer-events-none opacity-[0.03] noise-bg"></div>
 
-    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-transparent">
-        <div class="container mx-auto px-6 py-5 flex justify-between items-center">
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500 border-b border-transparent">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="#" class="flex items-center group cursor-pointer">
-                <img src="./asset/7b9e6b30-1252-443d-9fc2-4fef2ca8507f_removalai_preview.png" alt="The IndustryTerr" class="h-16 w-auto object-contain">
+                <img src="./asset/7b9e6b30-1252-443d-9fc2-4fef2ca8507f_removalai_preview.png" alt="The IndustryTerr" class="h-14 w-auto object-contain">
             </a>
             
+            <!-- Desktop Nav -->
             <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
                 <a href="#about" class="hover:text-emerald-400 transition-colors">About</a>
-                <!-- <a href="#pricing" class="hover:text-emerald-400 transition-colors">Pricing</a> -->
                 <a href="#testimonials" class="hover:text-emerald-400 transition-colors">Reviews</a>
-                <a href="#contact" class="hover:text-emerald-400 transition-colors">Contact</a>
+                <a href="https://ig.me/m/theindustrysterr" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-400 transition-colors">Contact</a>
             </div>
 
-            <button class="bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm hover:bg-emerald-400 hover:scale-105 transition-all shadow-lg">
+            <!-- Desktop CTA -->
+            <a href="https://ig.me/m/theindustrysterr" target="_blank" rel="noopener noreferrer" class="hidden md:inline-block bg-white text-black px-6 py-2.5 rounded-full font-bold text-sm hover:bg-emerald-400 hover:scale-105 transition-all shadow-lg">
                 Get Started
+            </a>
+
+            <!-- Hamburger Button (Mobile) -->
+            <button id="hamburger-btn" class="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-[6px] group" onclick="toggleMenu()">
+                <span id="bar1" class="block w-6 h-[2px] bg-white rounded-full transition-all duration-300 origin-center"></span>
+                <span id="bar2" class="block w-6 h-[2px] bg-white rounded-full transition-all duration-300"></span>
+                <span id="bar3" class="block w-6 h-[2px] bg-white rounded-full transition-all duration-300 origin-center"></span>
             </button>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="md:hidden max-h-0 overflow-hidden transition-all duration-400 ease-in-out bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/0">
+            <div class="container mx-auto px-6 py-0 flex flex-col gap-1 transition-all duration-300" id="mobile-menu-inner">
+                <a href="#about" onclick="toggleMenu()" class="text-slate-300 hover:text-emerald-400 transition-colors py-3 text-lg font-medium border-b border-white/5">About</a>
+                <a href="#testimonials" onclick="toggleMenu()" class="text-slate-300 hover:text-emerald-400 transition-colors py-3 text-lg font-medium border-b border-white/5">Reviews</a>
+                <a href="https://ig.me/m/theindustrysterr" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:text-emerald-400 transition-colors py-3 text-lg font-medium border-b border-white/5">Contact</a>
+                <a href="https://ig.me/m/theindustrysterr" target="_blank" rel="noopener noreferrer" class="bg-emerald-500 text-black text-center px-6 py-3.5 rounded-2xl font-bold text-base hover:bg-emerald-400 transition-all mt-3 mb-4 shadow-lg">
+                    Get Started
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -52,7 +72,7 @@
                     We pitch your music to a network of 5,000+ verified playlist curators. Real people, real engagement, zero bots.
                 </p>
                 <div class="flex flex-wrap gap-4">
-                    <a href="#contact" class="bg-emerald-500 text-black px-8 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)]">Launch Campaign</a>
+                    <a href="https://ig.me/m/theindustrysterr" target="_blank" rel="noopener noreferrer" class="bg-emerald-500 text-black px-8 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-400 transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)]">Launch Campaign</a>
                 </div>
             </div>
             <div class="relative reveal delay-200 max-w-md lg:max-w-lg mx-auto">
@@ -471,7 +491,7 @@
         <div class="container mx-auto px-6 text-center reveal">
             <div class="bg-emerald-500 py-16 px-8 rounded-[3rem] shadow-[0_20px_60px_rgba(16,185,129,0.3)]">
                 <h2 class="text-4xl md:text-6xl font-black text-black mb-8 tracking-tighter uppercase">Don't let your sound go unheard.</h2>
-                <a href="#contact" class="bg-black text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-110 transition-all inline-block shadow-2xl">Start Your Campaign Now</a>
+                <a href="https://ig.me/m/theindustrysterr" target="_blank" rel="noopener noreferrer" class="bg-black text-white px-12 py-5 rounded-2xl text-xl font-bold hover:scale-110 transition-all inline-block shadow-2xl">Start Your Campaign Now</a>
             </div>
         </div>
     </section>
@@ -486,7 +506,7 @@
                 <p class="max-w-xs text-sm leading-relaxed mb-6">Building the bridge between talented artists and organic listeners since 2018.</p>
                 <div class="flex gap-4 text-xl">
                     <a href="#" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-spotify"></i></a>
-                    <a href="#" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://instagram.com/theindustrysterr" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-instagram"></i></a>
                     <a href="#" class="hover:text-emerald-500 transition-colors"><i class="fa-brands fa-youtube"></i></a>
                 </div>
             </div>
