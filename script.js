@@ -145,6 +145,109 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // === Drag/Swipe support for CSS-animated carousels ===
+    function makeDraggable(container, track) {
+        if (!container || !track) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let currentTranslate = 0;
+        let animationWasRunning = true;
+        let dragStartTime = 0;
+
+        function getTranslateX() {
+            const style = window.getComputedStyle(track);
+            const matrix = new DOMMatrix(style.transform);
+            return matrix.m41;
+        }
+
+        function pauseAnimation() {
+            animationWasRunning = track.style.animationPlayState !== 'paused';
+            track.style.animation = 'none';
+            currentTranslate = getTranslateX();
+            track.style.transform = `translateX(${currentTranslate}px)`;
+        }
+
+        function resumeAnimation() {
+            // Calculate where we are as a percentage of the track
+            const trackWidth = track.scrollWidth / 2; // half because of duplicate set
+            // Normalize position 
+            let pos = currentTranslate % trackWidth;
+            if (pos > 0) pos -= trackWidth;
+            
+            track.style.transform = '';
+            track.style.animation = '';
+            
+            // Let CSS animation take over again after a delay
+            setTimeout(() => {
+                track.style.animationPlayState = 'running';
+            }, 50);
+        }
+
+        // Touch events
+        track.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            dragStartTime = Date.now();
+            pauseAnimation();
+        }, { passive: true });
+
+        track.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const x = e.touches[0].clientX;
+            const diff = x - startX;
+            track.style.transform = `translateX(${currentTranslate + diff}px)`;
+        }, { passive: true });
+
+        track.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const endX = e.changedTouches[0].clientX;
+            const diff = endX - startX;
+            currentTranslate += diff;
+            
+            // If it was a quick tap (not a drag), don't interfere
+            const elapsed = Date.now() - dragStartTime;
+            if (Math.abs(diff) < 5 && elapsed < 200) {
+                resumeAnimation();
+                return;
+            }
+            
+            resumeAnimation();
+        }, { passive: true });
+
+        // Mouse events (desktop drag)
+        track.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            dragStartTime = Date.now();
+            track.style.cursor = 'grabbing';
+            pauseAnimation();
+            e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const diff = e.clientX - startX;
+            track.style.transform = `translateX(${currentTranslate + diff}px)`;
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = e.clientX - startX;
+            currentTranslate += diff;
+            track.style.cursor = '';
+            resumeAnimation();
+        });
+    }
+
+    // Apply to screenshot carousel
+    document.querySelectorAll('.carousel-container').forEach(container => {
+        const track = container.querySelector('.carousel-track');
+        if (track) makeDraggable(container, track);
+    });
+
     // 1. Reveal Elements on Scroll
     const reveal = () => {
         document.querySelectorAll('.reveal').forEach(el => {
