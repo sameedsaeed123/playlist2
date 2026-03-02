@@ -152,8 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let isDragging = false;
         let startX = 0;
         let currentTranslate = 0;
-        let animationWasRunning = true;
         let dragStartTime = 0;
+
+        // Get the animation name and duration from computed style
+        const computedStyle = window.getComputedStyle(track);
+        const animName = computedStyle.animationName || 'scroll';
+        const animDuration = parseFloat(computedStyle.animationDuration) || 40;
 
         function getTranslateX() {
             const style = window.getComputedStyle(track);
@@ -162,26 +166,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function pauseAnimation() {
-            animationWasRunning = track.style.animationPlayState !== 'paused';
-            track.style.animation = 'none';
+            // Freeze the track at its current visual position
             currentTranslate = getTranslateX();
+            track.style.animation = 'none';
             track.style.transform = `translateX(${currentTranslate}px)`;
         }
 
         function resumeAnimation() {
-            // Calculate where we are as a percentage of the track
-            const trackWidth = track.scrollWidth / 2; // half because of duplicate set
-            // Normalize position 
-            let pos = currentTranslate % trackWidth;
-            if (pos > 0) pos -= trackWidth;
-            
+            // The track has items duplicated, so total scrollable = scrollWidth / 2
+            const halfWidth = track.scrollWidth / 2;
+
+            // Normalize position into the range [0, -halfWidth)
+            let pos = currentTranslate % halfWidth;
+            if (pos > 0) pos -= halfWidth;
+            // pos is now between -halfWidth and 0
+
+            // Figure out how far through the animation this position is (0 to 1)
+            // Animation goes from 0 → -halfWidth, so fraction = pos / -halfWidth
+            const fraction = pos / -halfWidth; // 0..1
+
+            // Compute the negative delay so CSS animation starts from this point
+            const delay = -(fraction * animDuration);
+
+            // Remove inline transform, restart animation from calculated offset
             track.style.transform = '';
-            track.style.animation = '';
-            
-            // Let CSS animation take over again after a delay
-            setTimeout(() => {
-                track.style.animationPlayState = 'running';
-            }, 50);
+            // Force a reflow so browser registers the animation reset
+            void track.offsetHeight;
+            track.style.animation = `${animName} ${animDuration}s linear infinite`;
+            track.style.animationDelay = `${delay}s`;
         }
 
         // Touch events
@@ -205,14 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const endX = e.changedTouches[0].clientX;
             const diff = endX - startX;
             currentTranslate += diff;
-            
-            // If it was a quick tap (not a drag), don't interfere
+
+            // Quick tap — don't interfere (let click events through)
             const elapsed = Date.now() - dragStartTime;
             if (Math.abs(diff) < 5 && elapsed < 200) {
                 resumeAnimation();
                 return;
             }
-            
+
             resumeAnimation();
         }, { passive: true });
 
@@ -242,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Apply to screenshot carousel
+    // Apply to all carousel tracks (screenshots + testimonials)
     document.querySelectorAll('.carousel-container').forEach(container => {
         const track = container.querySelector('.carousel-track');
         if (track) makeDraggable(container, track);
