@@ -1,0 +1,177 @@
+// Lightbox functions (global scope)
+function openLightbox(el) {
+    const img = el.querySelector('img');
+    if (!img) return;
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.src = img.src;
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+
+// Close lightbox on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeLightbox();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Video Carousel - Auto slide on mobile only
+    const videoTrack = document.getElementById('video-track');
+    const videoDots = document.getElementById('video-dots');
+    if (videoTrack && videoDots) {
+        const slides = videoTrack.querySelectorAll('.video-slide');
+        const dots = videoDots.querySelectorAll('.dot');
+        let currentSlide = 0;
+        let slideInterval;
+
+        function goToSlide(index) {
+            currentSlide = index;
+            videoTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            const next = (currentSlide + 1) % slides.length;
+            goToSlide(next);
+        }
+
+        function startAutoSlide() {
+            // Only auto-slide on mobile (< 640px)
+            if (window.innerWidth < 640) {
+                slideInterval = setInterval(nextSlide, 4000);
+            }
+        }
+
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+
+        // Touch swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        videoTrack.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            stopAutoSlide();
+        }, { passive: true });
+
+        videoTrack.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentSlide < slides.length - 1) {
+                    goToSlide(currentSlide + 1);
+                } else if (diff < 0 && currentSlide > 0) {
+                    goToSlide(currentSlide - 1);
+                }
+            }
+            startAutoSlide();
+        }, { passive: true });
+
+        // Dot click
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                stopAutoSlide();
+                goToSlide(i);
+                startAutoSlide();
+            });
+        });
+
+        // Start
+        startAutoSlide();
+
+        // Re-check on resize
+        window.addEventListener('resize', () => {
+            stopAutoSlide();
+            if (window.innerWidth >= 640) {
+                videoTrack.style.transform = 'none';
+            } else {
+                goToSlide(currentSlide);
+                startAutoSlide();
+            }
+        });
+    }
+    
+    // 1. Reveal Elements on Scroll
+    const reveal = () => {
+        document.querySelectorAll('.reveal').forEach(el => {
+            const windowHeight = window.innerHeight;
+            const elementTop = el.getBoundingClientRect().top;
+            if (elementTop < windowHeight - 100) el.classList.add('active');
+        });
+    };
+    window.addEventListener('scroll', reveal);
+    reveal();
+
+    // 2. Load Pricing Data from "Backend" (localStorage)
+    const loadPricing = () => {
+        const prices = JSON.parse(localStorage.getItem('pb_prices')) || {
+            starter: "$59",
+            silver: "$449",
+            platinum: "$1,119"
+        };
+        if(document.getElementById('price-starter')) {
+            document.getElementById('price-starter').innerText = prices.starter;
+            document.getElementById('price-silver').innerText = prices.silver;
+            document.getElementById('price-platinum').innerText = prices.platinum;
+        }
+    };
+    loadPricing();
+
+    // 3. Load Approved Testimonials
+    const loadTestimonials = () => {
+        const track = document.getElementById('testimonial-track');
+        if (!track) return;
+        
+        const reviews = JSON.parse(localStorage.getItem('pb_reviews')) || [];
+        const approved = reviews.filter(r => r.status === 'approved');
+        
+        if (approved.length > 0) {
+            // In a real app, we'd clear and rebuild, but here we append new ones
+            approved.forEach(rev => {
+                const div = document.createElement('div');
+                div.className = "testimonial-card";
+                div.innerHTML = `
+                    <div class="p-8 bg-white/[0.02] border border-white/10 rounded-3xl w-[350px] mx-4">
+                        <p class="italic text-slate-300 mb-6">"${rev.text}"</p>
+                        <p class="font-bold text-white">${rev.name}</p>
+                    </div>
+                `;
+                track.prepend(div);
+            });
+        }
+    };
+    loadTestimonials();
+
+    // 4. Handle Review Submission
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newReview = {
+                id: Date.now(),
+                name: document.getElementById('revName').value,
+                text: document.getElementById('revText').value,
+                status: 'pending'
+            };
+            
+            const existing = JSON.parse(localStorage.getItem('pb_reviews')) || [];
+            existing.push(newReview);
+            localStorage.setItem('pb_reviews', JSON.stringify(existing));
+            
+            alert('Review submitted! It will appear once approved by admin.');
+            reviewForm.reset();
+        });
+    }
+});

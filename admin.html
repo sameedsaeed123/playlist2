@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PB | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>body { background: #050505; color: white; font-family: sans-serif; }</style>
+</head>
+<body class="p-8">
+    <div id="login-zone" class="max-w-md mx-auto mt-20 bg-zinc-900 p-8 rounded-2xl border border-white/10">
+        <h2 class="text-2xl font-bold mb-6">Admin Login</h2>
+        <input type="password" id="pass" placeholder="Password" class="w-full bg-black p-3 mb-4 rounded border border-white/10">
+        <button onclick="login()" class="w-full bg-emerald-500 text-black font-bold p-3 rounded">Login</button>
+    </div>
+
+    <div id="admin-dash" class="hidden max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-bold">Dashboard</h1>
+            <button onclick="location.href='index.html'" class="text-sm opacity-50">View Site</button>
+        </div>
+
+        <!-- Price Management -->
+        <div class="bg-zinc-900 p-6 rounded-2xl mb-8 border border-white/10">
+            <h3 class="text-xl font-bold mb-4">Update Pricing</h3>
+            <div class="grid grid-cols-3 gap-4">
+                <div>
+                    <label class="text-xs uppercase opacity-50">Starter</label>
+                    <input id="p1" type="text" class="w-full bg-black p-2 rounded">
+                </div>
+                <div>
+                    <label class="text-xs uppercase opacity-50">Silver</label>
+                    <input id="p2" type="text" class="w-full bg-black p-2 rounded">
+                </div>
+                <div>
+                    <label class="text-xs uppercase opacity-50">Platinum</label>
+                    <input id="p3" type="text" class="w-full bg-black p-2 rounded">
+                </div>
+            </div>
+            <button onclick="savePrices()" class="mt-4 bg-emerald-500 text-black px-6 py-2 rounded font-bold">Save Prices</button>
+        </div>
+
+        <!-- Testimonial Management -->
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-white/10">
+            <h3 class="text-xl font-bold mb-4">Pending Reviews</h3>
+            <div id="pending-list" class="space-y-4">
+                <!-- Items injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            if(document.getElementById('pass').value === 'admin123') {
+                document.getElementById('login-zone').classList.add('hidden');
+                document.getElementById('admin-dash').classList.remove('hidden');
+                loadAdminData();
+            } else { alert('Wrong password'); }
+        }
+
+        function loadAdminData() {
+            const prices = JSON.parse(localStorage.getItem('pb_prices')) || {starter: "$59", silver: "$449", platinum: "$1,119"};
+            document.getElementById('p1').value = prices.starter;
+            document.getElementById('p2').value = prices.silver;
+            document.getElementById('p3').value = prices.platinum;
+
+            const reviews = JSON.parse(localStorage.getItem('pb_reviews')) || [];
+            const list = document.getElementById('pending-list');
+            list.innerHTML = '';
+            
+            reviews.filter(r => r.status === 'pending').forEach(rev => {
+                list.innerHTML += `
+                    <div class="p-4 bg-black rounded flex justify-between items-center">
+                        <div>
+                            <p class="font-bold">${rev.name}</p>
+                            <p class="text-sm opacity-60">${rev.text}</p>
+                        </div>
+                        <button onclick="approve(${rev.id})" class="bg-blue-600 px-4 py-1 rounded text-xs">Approve</button>
+                    </div>
+                `;
+            });
+        }
+
+        function savePrices() {
+            const p = {
+                starter: document.getElementById('p1').value,
+                silver: document.getElementById('p2').value,
+                platinum: document.getElementById('p3').value
+            };
+            localStorage.setItem('pb_prices', JSON.stringify(p));
+            alert('Prices updated on live site!');
+        }
+
+        function approve(id) {
+            let reviews = JSON.parse(localStorage.getItem('pb_reviews'));
+            reviews = reviews.map(r => r.id === id ? {...r, status: 'approved'} : r);
+            localStorage.setItem('pb_reviews', JSON.stringify(reviews));
+            loadAdminData();
+        }
+    </script>
+</body>
+</html>
