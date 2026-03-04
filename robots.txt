@@ -1,0 +1,6 @@
+# https://theindustrysterr.com/robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://theindustrysterr.com/sitemap.xml
